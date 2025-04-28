@@ -1,14 +1,20 @@
 import { Readable } from "stream";
 import { Response } from "express";
-import { asyncDelay } from "./utils";
+import { asyncDelay } from "./utils/utils";
+import fs from "fs";
+import { parse } from 'csv-parse';
+
 
 const readFromStream = async (res: Response) => {
 
-    res.writeHead(200, {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        Connection: "keep-alive",
-    });
+    const headers = { ...res.getHeaders(), ... {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
+    }};
+
+    res.startTime('generator', 'Generator Time');
+    res.writeHead(200, headers);
 
     async function* generate() {
       const arrayOfObjects = [
@@ -23,7 +29,7 @@ const readFromStream = async (res: Response) => {
       ];
   
       while (arrayOfObjects.length > 0) {
-        yield await asyncDelay(() => arrayOfObjects.shift(), 1000);
+        yield await asyncDelay(() => arrayOfObjects.shift(), 500);
       }
     }
   
@@ -34,13 +40,48 @@ const readFromStream = async (res: Response) => {
     })
   
     readable_three.on("end", () => {
-      console.log("Done");
+      console.log("Generator Done");
+      res.endTime('generator');
+      // res.setMetric('generator', 5000, 'Generator Time');
       res.end();
     });
     
 };
 
+const readFromCSVStream = async (res: Response) => {
+  const readStream = fs.createReadStream('./files/data.csv');
+
+  res.writeHead(200, { ...res.getHeaders(), ... {
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive",}});
+
+  const parser = parse({ columns: true });
+  
+ 
+  const readable = Readable.from(readStream.pipe(parser));
+
+  let bufferring = "";
+  readable.on("data", (chunk) => {
+    const data = `${JSON.stringify(chunk)}#`;
+    if (Buffer.from(data).length > 10000) {
+      res.write(bufferring);
+      bufferring = "";
+    } else {
+      bufferring += data;
+    }
+  })
+
+  readable.on("end", () => {
+    res.write(bufferring);
+    console.log("CSV Done!");
+    res.end();
+  });
+  
+};
+
 
 export {
-    readFromStream
+    readFromStream,
+    readFromCSVStream
 }

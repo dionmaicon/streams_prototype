@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,33 +12,106 @@
             align-items: center;
             padding: 20px;
         }
+
+        button {
+            padding: 5px;
+            margin: 5px;
+        }
+
         .container-items {
-            border: 1px solid black; 
-            width: 90%; 
-            margin-right: auto; 
+            border: 1px solid black;
+            width: 90%;
+            margin-top: 20px;
+            margin-right: auto;
             margin-left: auto;
             padding: 5px;
             border-radius: 15px;
         }
+
         #list-items {
             padding-left: 20px;
         }
+
         .list-item {
             color: darkred;
             margin-bottom: 5px;
         }
+
+        .container-aside {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 10px;
+            max-height: 700px;
+            max-width: 90%;
+            overflow-y: scroll;
+            scroll-behavior: smooth;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .origin {
+            width: 90%;
+        }
+
+        .text-center {
+            text-align: center;
+        }
     </style>
+    <script>
+        const openTab = (originOption) => {
+            let i = 0;
+            const origins = document.getElementsByClassName("origin");
+            for (i = 0; i < origins.length; i++) {
+                origins[i].style.display = "none"
+            }
+            document.getElementById(originOption).style.display = "block"
+        }
+    </script>
 </head>
+
 <body>
 
     <div id="app" class="container">
-        <div class="container-items">
-            <h1 style="text-align: center;">Streams</h1>
 
-            <h2 style="margin-top: 10px; margin-bottom: 10px; margin-left: 20px;"> Items:  </h2>
-            <div id="list-items"></div>
+        <div class="origin-tabs-root">
+            <button class="origin-tabs" id="origin-tab-generator" onclick="openTab('Generators')">Generators</button>
+            <button class="origin-tabs" id="origin-tab-csv" onclick="openTab('CSV')">CSV</button>
+            <button class="origin-tabs" id="origin-tab-multithread"
+                onclick="openTab('Multithread')">Multithread</button>
+        </div>
+
+
+        <div id="Generators" class="origin">
+            <div class="text-center container-items">
+                <h3>Generators</h3>
+                <button id="generator-button">Load From Generators</button>
+                <div id="list-generator-items" style="margin-top: 10px;"></div>
+            </div>
+
+        </div>
+
+        <div id="CSV" class="origin" style="display:none">
+            <div class="text-center container-items">
+                <h3>CSV</h3>
+                <button id="csv-button">Load From CSV</button>
+                <div id="list-csv-items" style="margin-top: 10px;"></div>
+            </div>
+        </div>
+
+        <div id="Multithread" class="origin" style="display:none">
+            <div class="text-center container-items">
+                <h3>Multithreading</h3>
+                <input aria-label="A:" type="number" style="margin: 10px; padding: 5px;" placeholder="Variable A" id="inputA" required value="5"/>
+                <input aria-label="B:" type="number" style="margin: 10px; padding: 5px;" placeholder="Variable B" id="inputB" required value="5"/>
+                <button id="multithread-button">Load From Multithread</button>
+                <div> Sum of Operations: <span id="sumAll"></span></div>
+                <div id="list-multithread-items" style="margin-top: 10px;"></div>
+            </div>
         </div>
     </div>
     <script type="module" src="./bundle.js"></script>
 </body>
+
 </html>
